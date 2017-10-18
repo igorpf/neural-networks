@@ -3,17 +3,37 @@
 
 # Created by igor on 12/10/2017
 import numpy as np
+import functions as fn
 
-#A dict containing the sigmoid function and its derivative
-sigmoid = {
-    'fn': lambda z: 1 / (1+np.exp(-z)),
-    'der': lambda z: z*(1-z)
-}
+class Layer():
+    def __init__(self, neurons):
+        self.neurons = neurons        
 
-linear = {
-    'fn': lambda z: z,
-    'der': lambda z: 1
-}
+class Neuron():
+    def __init__(self, inputs=[], activationFn=fn.sigmoid, output=None):
+        """
+            inputs->list of tuples containing the input (neuron or int) and its weight
+                [(Neuron, 0.123)]
+            activationFn -> function used to do the prediction (neuron output)
+            output -> integer (used for neurons of the input layer)
+
+          TODO: Bias input!  
+        """
+        self.inputs = inputs
+        self.activationFn = activationFn
+        self.output = output
+    #calculate output
+    def predict(self):
+        #sum each input*weight
+        self.output = self.activationFn['fn'](
+            reduce(lambda x,y: x+y, map(lambda x:x[0].getOutput()*x[1], self.inputs))
+        )
+        print self.output
+        return self.output
+    def getOutput(self):
+        return self.output
+
+
 
 class NeuralNet():
     """docstring for neuralNet"""
@@ -37,43 +57,24 @@ class NeuralNet():
             layers += [Layer(layer)]
         self.layers = layers
 
-    def train(self):
+    def forwardProp(self):
         for n in range(1, len(self.layers)):
             for neuron in self.layers[n].neurons:
                 neuron.predict()
             pass
         return self.layers[-1].neurons[0].getOutput()
 
-class Layer():
-    def __init__(self, neurons):
-        self.neurons = neurons        
-
-class Neuron():
-    def __init__(self, inputs=[], activationFn=sigmoid, output=None):
-        """
-            inputs->list of tuples containing the input (neuron or int) and its weight
-                [(Neuron, 0.123)]
-            activationFn -> function used to do the prediction (neuron output)
-            output -> integer (used for neurons of the input layer)
-
-          TODO: Bias input!  
-        """
-        self.inputs = inputs
-        self.activationFn = activationFn
-        self.output = output
-    #calculate output
-    def predict(self):
-        self.output = self.activationFn['fn'](
-            reduce(lambda x,y: x+y, map(lambda x:x[0].getOutput()*x[1], self.inputs))
-        )
-        print self.output
-        return self.output
-    def getOutput(self):
-        return self.output
+    def backProp(self, answer, errorFn=fn.errorMeanSq):
+        pass
+        # for n in xrange(1, len(self.layers), -1):
+        #     for neuron in self.layers[n].neurons:
+        #         neuron.predict()
+        #     pass
+        # return self.layers[-1].neurons[0].getOutput()
 
 if __name__ == '__main__':
     #print reduce(lambda x,y: x+y, map(lambda x:x[0]*x[1], [(1,2),(1,1)]))
     n = NeuralNet([2,2,3], [1,2])
-    print n.train()
+    print n.forwardProp()
     # l = [4,3,2]
     # print NeuralNet([1,2])
