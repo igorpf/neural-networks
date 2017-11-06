@@ -72,9 +72,24 @@ class NeuralNet():
         #     pass
         # return self.layers[-1].neurons[0].getOutput()
 
+
+class DataSet():
+    def __init__(self, file):
+        self.dataMatrix = []
+        self.generateDataMatrix(file)
+
+    def generateDataMatrix(self, file):
+        with open(file) as file:
+            for i, line in enumerate(file):
+                line = line.rstrip("\n")
+                words = line.split(",")
+                self.dataMatrix += [words]
+                print self.dataMatrix
+
 if __name__ == '__main__':
     #print reduce(lambda x,y: x+y, map(lambda x:x[0]*x[1], [(1,2),(1,1)]))
     n = NeuralNet([2,2,3], [1,2])
     print n.forwardProp()
     # l = [4,3,2]
     # print NeuralNet([1,2])
+    ds = DataSet("habermandata.txt")
