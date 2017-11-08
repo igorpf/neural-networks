@@ -79,7 +79,7 @@ class NeuralNet():
             for n in self.layers[l].neurons:
                 for connection in n.inputs:
                     connection[2] = connection[0].output * n.error
-                    #numericalDerivative = J...
+                    numericalDerivative = J...
 
         # update weights
         for l in range(1, len(self.layers)):
@@ -94,7 +94,7 @@ class NeuralNet():
         # return self.layers[-1].neurons[0].output
                 
     def errorFunction:
-        pass
+        ...
 
 if __name__ == '__main__':
     #print reduce(lambda x,y: x+y, map(lambda x:x[0]*x[1], [(1,2),(1,1)]))
