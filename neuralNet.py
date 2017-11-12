@@ -92,4 +92,4 @@ if __name__ == '__main__':
     print n.forwardProp()
     # l = [4,3,2]
     # print NeuralNet([1,2])
-    ds = DataSet("habermandata.txt")
+    ds = DataSet("./datasets/habermandata.txt")
