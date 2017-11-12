@@ -4,6 +4,7 @@
 # Created by igor on 12/10/2017
 import numpy as np
 import functions as fn
+import cPickle as pickle
 
 class Layer():
     def __init__(self, neurons):
@@ -57,6 +58,10 @@ class NeuralNet():
             layers += [Layer(layer)]
         self.layers = layers
 
+    def saveNet(self):
+        with open("./save/neuralNet.txt", "wb") as output:
+            pickle.dump(self.layers, output, pickle.HIGHEST_PROTOCOL)
+
     def forwardProp(self):
         for n in range(1, len(self.layers)):
             for neuron in self.layers[n].neurons:
@@ -93,3 +98,4 @@ if __name__ == '__main__':
     # l = [4,3,2]
     # print NeuralNet([1,2])
     ds = DataSet("./datasets/habermandata.txt")
+    n.saveNet()
