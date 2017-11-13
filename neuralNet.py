@@ -5,6 +5,7 @@
 import numpy as np
 import functions as fn
 import cPickle as pickle
+from files import files
 
 class Layer():
     def __init__(self, neurons):
@@ -81,21 +82,36 @@ class NeuralNet():
 class DataSet():
     def __init__(self, file):
         self.dataMatrix = []
-        self.generateDataMatrix(file)
+        self.generateDataMatrix(file.fileName, file.normRanges)
 
-    def generateDataMatrix(self, file):
+    def generateDataMatrix(self, file, ranges=None):
         with open(file) as file:
-            for i, line in enumerate(file):
+            for i, line in enumerate(file):                
                 line = line.rstrip("\n")
-                words = line.split(",")
-                self.dataMatrix += [words]
-                print self.dataMatrix
-
+                words = map(lambda x: float(x) ,line.split(","))
+                self.dataMatrix += [words]            
+            #the ranges for normalization can be passed as arguments for optimization
+            if ranges==None:
+                self.ranges = []
+                for i in range(0, len(self.dataMatrix[0])):
+                    column = map(lambda x:x[i],self.dataMatrix)
+                    self.ranges += [[min(column),max(column)]]
+                print self.ranges
+            else:
+                self.ranges = ranges
+            #feature normalization
+            for i, row in enumerate(self.dataMatrix):
+                for j, element in enumerate(self.dataMatrix[i]):
+                    bounds = self.ranges[j]
+                    self.dataMatrix[i][j] = (element-bounds[0])/(bounds[1]-bounds[0])
+            # print self.dataMatrix
 if __name__ == '__main__':
     #print reduce(lambda x,y: x+y, map(lambda x:x[0]*x[1], [(1,2),(1,1)]))
+    print float('1')
     n = NeuralNet([2,2,3], [1,2])
     print n.forwardProp()
     # l = [4,3,2]
-    # print NeuralNet([1,2])
-    ds = DataSet("./datasets/habermandata.txt")
-    n.saveNet()
+    # print NeuralNet([1,2])''
+    h = files['haberman']
+    ds = DataSet(h)
+    # n.saveNet()
