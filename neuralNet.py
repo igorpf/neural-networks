@@ -6,6 +6,7 @@ import numpy as np
 import functions as fn
 import cPickle as pickle
 from files import files
+import crossValidation as cv
 
 class Layer():
     def __init__(self, neurons):
@@ -104,10 +105,8 @@ class DataSet():
                 for j, element in enumerate(self.dataMatrix[i]):
                     bounds = self.ranges[j]
                     self.dataMatrix[i][j] = (element-bounds[0])/(bounds[1]-bounds[0])
-            # print self.dataMatrix
+            print cv.fold(self.dataMatrix, [1])
 if __name__ == '__main__':
-    #print reduce(lambda x,y: x+y, map(lambda x:x[0]*x[1], [(1,2),(1,1)]))
-    print float('1')
     n = NeuralNet([2,2,3], [1,2])
     print n.forwardProp()
     # l = [4,3,2]
