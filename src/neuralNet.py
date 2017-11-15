@@ -64,12 +64,12 @@ class NeuralNet():
             raise "DataSet values do not match the number of attributes of the input layer"
 
         #When train, add new values for the first layer's fake neurons
-        inputLayer = Layer([Neuron(output=i) for i in range(neurons[0])])
+        inputLayer = Layer([Neuron(output=0) for i in range(neurons[0])])
         layers = [inputLayer]
         for n in range(1,len(neurons)):
             layer = []
             for x in range(neurons[n]):
-                inputs = map(lambda x:(x, np.random.rand() ),layers[n-1].neurons)
+                inputs = map(lambda x:(x, np.random.rand(), 0),layers[n-1].neurons)
                 layer += [Neuron(inputs)]
             layers += [Layer(layer)]
         self.layers = layers
@@ -81,16 +81,14 @@ class NeuralNet():
                     pickle.dump([neuron.getOutput()], output, pickle.HIGHEST_PROTOCOL)
 
     def startTraining(self):
-        #for each line of the dataset
-        for i in range(len(self.datasetMatrix)):
-            j = 0
-            #set the input layer values
-            for neuron in self.layers[0].neurons:
-                neuron.setOutput(self.datasetMatrix[i][j])
-                j = j + 1
-            # and do the propagation and backpropagation
-            #prediction = self.forwardProp()
-            #self.backProp(prediction, self.datasetMatrix[j][-1], fn.errorMeanSq)
+
+        x = [[self.datasetMatrix[i % len(self.datasetMatrix)][j] for j in range(len(self.datasetMatrix[0]) - 1)] for i in range(len(self.datasetMatrix))]
+        y = [[self.datasetMatrix[i % len(self.datasetMatrix)][-1]-1] for i in range(len(self.datasetMatrix))]
+
+        for i in range(500):
+            n.forwardProp(x[i % len(x)])
+            n.backProp(x, y, i % len(x), 0.01)
+            print i, n.errorFunction(x, y)
 
 
     def forwardProp(self, instance, outputType = 0):
@@ -148,11 +146,11 @@ class NeuralNet():
             if instanceIndex != None:
                 i = instanceIndex
             self.forwardProp(x[i], 1)
-            aux = 0
+
             for k in range(len(y[i])):
-                J = J + (-y[i][k] * (-np.log(self.layers[-1].neurons[k].testOutput))
+                if self.layers[-1].neurons[k].testOutput != 0:
+                    J = J + (-y[i][k] * (-np.log(self.layers[-1].neurons[k].testOutput))
                                 - (1 - y[i][k]) * (-np.log(1 - self.layers[-1].neurons[k].testOutput)))
-                aux = aux + (-y[i][k] * (-np.log(self.layers[-1].neurons[k].testOutput)) - (1 - y[i][k]) * (-np.log(1 - self.layers[-1].neurons[k].testOutput)))
 
         return J / len(y)
 
@@ -196,12 +194,6 @@ class DataSet():
         return ranges
 
 if __name__ == '__main__':
-    #print reduce(lambda x,y: x+y, map(lambda x:x[0]*x[1], [(1,2),(1,1)]))
-    x = [[1,2,1],[2,3,1],[0.5,1,1.5]]
-    y = [[0.3,0.8],[0.7,0.2],[0.3,0.2]]
-    n = NeuralNet([3,2,5,10,2], "haberman")
-    n.datasetMatrix = x
-    for i in range(500):
-        n.forwardProp(x[i % len(x)])
-        n.backProp(x, y, i % len(x), 0.1)
-        print n.errorFunction(x, y)
+    n = NeuralNet([3,2,5,10,1], "haberman")
+    n.startTraining()
+
