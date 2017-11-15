@@ -106,8 +106,7 @@ class DataSet():
                     bounds = self.ranges[j]
                     if bounds == None:
                         continue
-                    self.dataMatrix[i][j] = (element-bounds[0])/(bounds[1]-bounds[0])
-            print cv.fold(self.dataMatrix, [1])
+                    self.dataMatrix[i][j] = (element-bounds[0])/(bounds[1]-bounds[0])            
 if __name__ == '__main__':
     n = NeuralNet([2,2,3], [1,2])
     print n.forwardProp()
