@@ -73,7 +73,6 @@ class NeuralNet():
         with open("./save/neuralNet.txt", "wb") as output:
             pickle.dump(self.layers, output, pickle.HIGHEST_PROTOCOL)
 
-    def forwardProp(self):
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
             self.layers[0].neurons[i].output = instance[i]
@@ -184,6 +183,5 @@ if __name__ == '__main__':
 
 
     n = NeuralNet([2,2,3], [1,2])
-    print n.forwardProp()
     h = files['haberman']
     ds = DataSet(h)
