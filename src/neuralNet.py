@@ -197,13 +197,11 @@ class DataSet():
 
 if __name__ == '__main__':
     #print reduce(lambda x,y: x+y, map(lambda x:x[0]*x[1], [(1,2),(1,1)]))
-    #x = [[1,2,1],[2,3,1],[0.5,1,1.5]]
-    #y = [[0.3,0.8],[0.7,0.2],[0.3,0.2]]
-    #n = NeuralNet([3,2,5,10,2], x[0])
-    #for i in range(500):
-     #   n.forwardProp(x[i % len(x)])
-      #  n.backProp(x, y, i % len(x), 0.1)
-       # print n.errorFunction(x, y)
-
-
-    n = NeuralNet([3,2,3], "haberman")
+    x = [[1,2,1],[2,3,1],[0.5,1,1.5]]
+    y = [[0.3,0.8],[0.7,0.2],[0.3,0.2]]
+    n = NeuralNet([3,2,5,10,2], "haberman")
+    n.datasetMatrix = x
+    for i in range(500):
+        n.forwardProp(x[i % len(x)])
+        n.backProp(x, y, i % len(x), 0.1)
+        print n.errorFunction(x, y)
