@@ -49,29 +49,49 @@ class Neuron():
 
 class NeuralNet():
     """docstring for neuralNet"""
-    def __init__(self, neurons=[1], inputs=[1]): 
+    def __init__(self, neurons=[1], trainingSetName = "haberman"):
         """Constructor:
         args:
             neurons(list of ints):  list representing the size of each layer. The number
                 of layers is the size of the list (of course)
-        """               
+        """
 
-        #Assert that len(inputs) == len(inputlayer)
-        if neurons[0] != len(inputs):
-            raise Exception('the inputs size must match the input layers size')
-        inputLayer = Layer([Neuron(output=i) for i in inputs])
+        self.trainingSetName = trainingSetName
+
+        self.datasetMatrix = DataSet(files[trainingSetName]).dataMatrix
+
+        if len(self.datasetMatrix[0]) - 1 != neurons[0]: #-1 because there are the attributes AND the class
+            raise "DataSet values do not match the number of attributes of the input layer"
+
+        #When train, add new values for the first layer's fake neurons
+        inputLayer = Layer([Neuron(output=i) for i in range(neurons[0])])
         layers = [inputLayer]
         for n in range(1,len(neurons)):
-            layer = []            
+            layer = []
             for x in range(neurons[n]):
-                inputs = map(lambda x:(x, np.random.rand(), 0),layers[n-1].neurons)
+                inputs = map(lambda x:(x, np.random.rand() ),layers[n-1].neurons)
                 layer += [Neuron(inputs)]
             layers += [Layer(layer)]
         self.layers = layers
 
-    def saveNet(self):
-        with open("./save/neuralNet.txt", "wb") as output:
-            pickle.dump(self.layers, output, pickle.HIGHEST_PROTOCOL)
+    def storeNet(self):
+        with open("./neuralnet/" + self.trainingSetName + ".txt", "wb") as output:
+            for layer in self.layers:
+                for neuron in layer.neurons:
+                    pickle.dump([neuron.getOutput()], output, pickle.HIGHEST_PROTOCOL)
+
+    def startTraining(self):
+        #for each line of the dataset
+        for i in range(len(self.datasetMatrix)):
+            j = 0
+            #set the input layer values
+            for neuron in self.layers[0].neurons:
+                neuron.setOutput(self.datasetMatrix[i][j])
+                j = j + 1
+            # and do the propagation and backpropagation
+            #prediction = self.forwardProp()
+            #self.backProp(prediction, self.datasetMatrix[j][-1], fn.errorMeanSq)
+
 
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
@@ -83,7 +103,6 @@ class NeuralNet():
             pass
 
     def backProp(self, x, y, instanceIndex, alpha = 0.1, eps = np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
-        n = 0
 
         # compute errors (deltas)
         for i in range(len(self.layers[-1].neurons)):
@@ -178,15 +197,13 @@ class DataSet():
 
 if __name__ == '__main__':
     #print reduce(lambda x,y: x+y, map(lambda x:x[0]*x[1], [(1,2),(1,1)]))
-    x = [[1,2,1],[2,3,1],[0.5,1,1.5]]
-    y = [[0.3,0.8],[0.7,0.2],[0.3,0.2]]
-    n = NeuralNet([3,2,5,10,2], x[0])
-    for i in range(500):
-        n.forwardProp(x[i % len(x)])
-        n.backProp(x, y, i % len(x), 0.1)
-        print n.errorFunction(x, y)
+    #x = [[1,2,1],[2,3,1],[0.5,1,1.5]]
+    #y = [[0.3,0.8],[0.7,0.2],[0.3,0.2]]
+    #n = NeuralNet([3,2,5,10,2], x[0])
+    #for i in range(500):
+     #   n.forwardProp(x[i % len(x)])
+      #  n.backProp(x, y, i % len(x), 0.1)
+       # print n.errorFunction(x, y)
 
 
-    n = NeuralNet([2,2,3], [1,2])
-    h = files['haberman']
-    ds = DataSet(h)
+    n = NeuralNet([3,2,3], "haberman")
