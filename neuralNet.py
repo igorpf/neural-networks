@@ -83,27 +83,29 @@ class NeuralNet():
 class DataSet():
     def __init__(self, file):
         self.dataMatrix = []
-        self.generateDataMatrix(file.fileName, file.normRanges)
+        self.generateDataMatrix(file)
 
-    def generateDataMatrix(self, file, ranges=None):
-        with open(file) as file:
+    def generateDataMatrix(self, fileObj):
+        with open(fileObj.fileName) as file:
             for i, line in enumerate(file):                
                 line = line.rstrip("\n")
                 words = map(lambda x: float(x) ,line.split(","))
                 self.dataMatrix += [words]            
             #the ranges for normalization can be passed as arguments for optimization
-            if ranges==None:
+            if fileObj.normRanges==None:
                 self.ranges = []
                 for i in range(0, len(self.dataMatrix[0])):
                     column = map(lambda x:x[i],self.dataMatrix)
                     self.ranges += [[min(column),max(column)]]
                 print self.ranges
             else:
-                self.ranges = ranges
+                self.ranges = fileObj.normRanges
             #feature normalization
             for i, row in enumerate(self.dataMatrix):
                 for j, element in enumerate(self.dataMatrix[i]):
                     bounds = self.ranges[j]
+                    if bounds == None:
+                        continue
                     self.dataMatrix[i][j] = (element-bounds[0])/(bounds[1]-bounds[0])
             print cv.fold(self.dataMatrix, [1])
 if __name__ == '__main__':
