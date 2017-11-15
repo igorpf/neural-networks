@@ -14,17 +14,19 @@ from files import files
 def testFold(file):
     f = files[file]
     ds = DataSet(f)
-    folds = cv.fold(ds.dataMatrix, f.classProportion)
+    folds = cv.fold(ds.dataMatrix, f.classProportion, f.classIndex)
+    print "Testing folds from file {}".format(file)
     print "Folds' size should be 5 and is: {0}".format(len(folds)) 
     for i, fold in enumerate(folds):
         print "Fold {}, size {}".format(i,len(fold))
         for j,clazz in enumerate(f.classes):
             # print fold, clazz
-            print "Class {}, proportion should be {} and is {}".format(clazz, f.classProportion[j],getFoldProportion(fold, clazz))
+            print "Class {}, proportion should be {} and is {}".format(clazz, f.classProportion[j],getFoldProportion(fold, f.classIndex,clazz))
+    print "\n\n"
 
-
-def getFoldProportion(fold, clazz):
-    return len(filter(lambda x: x[-1]== clazz, fold))/ float(len(fold))
+def getFoldProportion(fold, classIndex,clazz):
+    return len(filter(lambda x: x[classIndex]== clazz, fold))/ float(len(fold))
 if __name__ == '__main__':
     testFold('haberman')
-    # testFold('wine')
+    testFold('wine')
+    testFold('cmc')

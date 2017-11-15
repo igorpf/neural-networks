@@ -9,6 +9,7 @@ class File(object):
         self.normRanges = normRanges
         self.classes = classes
         self.classProportion = classProportion #class distribution for data stratification
+        self.classIndex=normRanges.index(None)
 
 files = {
     "haberman":File("../datasets/habermandata.txt",
