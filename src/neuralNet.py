@@ -42,9 +42,11 @@ class Neuron():
         #print self.testOutput
 
 
-    #def getOutput(self):
-    #    return self.output
+    def getOutput(self):
+        return self.output
 
+    def setOutput(self, newOutput):
+        self.output = newOutput
 
 
 class NeuralNet():
@@ -66,10 +68,16 @@ class NeuralNet():
         #When train, add new values for the first layer's fake neurons
         inputLayer = Layer([Neuron(output=0) for i in range(neurons[0])])
         layers = [inputLayer]
-        for n in range(1,len(neurons)):
+
+        biasNeuronPrecessor = Neuron([])
+        biasNeuronPrecessor.setOutput(1)
+        biasNeuron = Neuron([biasNeuronPrecessor, 1, 0])
+        biasNeuron.setOutput(1)
+        for n in range(1, len(neurons)):
             layer = []
             for x in range(neurons[n]):
-                inputs = map(lambda x:(x, np.random.rand(), 0),layers[n-1].neurons)
+                inputs = map(lambda x:(x, np.random.rand(), 0), layers[n-1].neurons)
+                inputs.insert(0, (biasNeuron, np.random.rand(), 0))
                 layer += [Neuron(inputs)]
             layers += [Layer(layer)]
         self.layers = layers
@@ -85,11 +93,12 @@ class NeuralNet():
         x = [[self.datasetMatrix[i % len(self.datasetMatrix)][j] for j in range(len(self.datasetMatrix[0]) - 1)] for i in range(len(self.datasetMatrix))]
         y = [[self.datasetMatrix[i % len(self.datasetMatrix)][-1]-1] for i in range(len(self.datasetMatrix))]
 
-        for i in range(500):
-            n.forwardProp(x[i % len(x)])
-            n.backProp(x, y, i % len(x), 0.01)
-            print i, n.errorFunction(x, y)
-
+        for k in range(100):
+            for i in range(len(y)):
+                n.forwardProp(x[i % len(x)])
+                n.backProp(x, y, i % len(x), 0.01)
+                print i, n.errorFunction(x, y)
+            print k, n.errorFunction(x, y)
 
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
@@ -107,7 +116,7 @@ class NeuralNet():
             n = self.layers[-1].neurons[i]
             n.error = n.output - y[instanceIndex][i]
         for l in reversed(range(1, len(self.layers) - 1)):
-            for i in range(len(self.layers[l].neurons)):
+            for i in range(1, len(self.layers[l].neurons)): # does not calculate the delta for the first neuron because its the bias
                 n = self.layers[l].neurons[i]
                 n.error = reduce(lambda x,y: x+y, map(lambda x:x.inputs[i][1]*x.error, self.layers[l+1].neurons)) * n.output * (1 - n.output)
 
@@ -194,6 +203,6 @@ class DataSet():
         return ranges
 
 if __name__ == '__main__':
-    n = NeuralNet([3,2,5,10,1], "haberman")
+    n = NeuralNet([3, 10, 10, 5, 1], "haberman")
     n.startTraining()
 
