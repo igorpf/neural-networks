@@ -158,8 +158,8 @@ class NeuralNet():
 
             for k in range(len(y[i])):
                 if self.layers[-1].neurons[k].testOutput != 0:
-                    J = J + (-y[i][k] * (-np.log(self.layers[-1].neurons[k].testOutput))
-                                - (1 - y[i][k]) * (-np.log(1 - self.layers[-1].neurons[k].testOutput)))
+                    J = J + (-y[i][k] * (np.log(self.layers[-1].neurons[k].testOutput))
+                                - (1 - y[i][k]) * (np.log(1 - self.layers[-1].neurons[k].testOutput)))
 
         return J / len(y)
 
