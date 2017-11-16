@@ -82,12 +82,6 @@ class NeuralNet():
             layers += [Layer(layer)]
         self.layers = layers
 
-    def storeNet(self):
-        with open("./neuralnet/" + self.trainingSetName + ".txt", "wb") as output:
-            for layer in self.layers:
-                for neuron in layer.neurons:
-                    pickle.dump([neuron.getOutput()], output, pickle.HIGHEST_PROTOCOL)
-
     def startTraining(self):
 
         x = [[self.datasetMatrix[i % len(self.datasetMatrix)][j] for j in range(len(self.datasetMatrix[0]) - 1)] for i in range(len(self.datasetMatrix))]
@@ -157,7 +151,7 @@ class NeuralNet():
             self.forwardProp(x[i], 1)
 
             for k in range(len(y[i])):
-                if self.layers[-1].neurons[k].testOutput != 0:
+                if self.layers[-1].neurons[k].testOutput != 0: #o que essa linha faz?
                     J = J + (-y[i][k] * (np.log(self.layers[-1].neurons[k].testOutput))
                                 - (1 - y[i][k]) * (np.log(1 - self.layers[-1].neurons[k].testOutput)))
 
