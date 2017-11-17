@@ -164,6 +164,7 @@ class NeuralNet():
                 n.testOutput = n.output
 
     def debug(self):
+        print "\n\n\n----------------------------------------------------"
         for l in range(1, len(self.layers)):
             neuronNumber = 0
             print "\n\nLayer ", l
