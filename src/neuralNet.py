@@ -163,6 +163,16 @@ class NeuralNet():
             for n in l.neurons:
                 n.testOutput = n.output
 
+    def debug(self):
+        for l in range(1, len(self.layers)):
+            neuronNumber = 0
+            print "\n\nLayer ", l
+            for neuron in self.layers[l].neurons:
+                neuronNumber = neuronNumber + 1
+                print "\n Neuron ", neuronNumber, "Activation: ", neuron.output
+                for c in range(len(neuron.inputs)):
+                    print "\t\tActivation: ", neuron.inputs[c][0].output, "\tWeight: ", neuron.inputs[c][1]
+
 class DataSet():
     def __init__(self, file):
         self.dataMatrix = []
