@@ -91,7 +91,7 @@ class NeuralNet():
             for i in range(len(y)):
                 n.forwardProp(x[i % len(x)])
                 n.backProp(x, y, i % len(x), 0.01)
-                print i, n.errorFunction(x, y)
+                #print i, n.errorFunction(x, y)
             print k, n.errorFunction(x, y)
 
     def forwardProp(self, instance, outputType = 0):
@@ -109,6 +109,7 @@ class NeuralNet():
         for i in range(len(self.layers[-1].neurons)):
             n = self.layers[-1].neurons[i]
             n.error = n.output - y[instanceIndex][i]
+            print "saída da rede:", n.output, "saída esperada:", y[instanceIndex][i]
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(1, len(self.layers[l].neurons)): # does not calculate the delta for the first neuron because its the bias
                 n = self.layers[l].neurons[i]
