@@ -124,11 +124,19 @@ class NeuralNet():
 
     def backProp(self, x, y, instanceIndex, alpha = 0.1, eps = np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
         print "\n"
+
+        highestOutputValue = 0
+        highestOutputValueClass = -1
         # compute errors (deltas)
         for i in range(len(self.layers[-1].neurons)):
             n = self.layers[-1].neurons[i]
             n.error = n.output - y[instanceIndex][i]
-            print "saída da rede:", n.output, "saída esperada:", y[instanceIndex][i]
+            if n.output > highestOutputValue:
+                highestOutputValue = n.output
+                highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
+
+        print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
                 n = self.layers[l].neurons[i]
