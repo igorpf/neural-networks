@@ -242,6 +242,16 @@ class DataSet():
             ranges += [[min(column),max(column)]]
         return ranges
 
+class PerformanceEvaluator:
+    def __init__(self, numberOfClasses):
+        self.numberOfClasses = numberOfClasses
+        self.confusionMatrix = np.zeros(shape=(numberOfClasses, numberOfClasses))
+
+    def computeIteration(self, predictedClass, expectedClass):
+        predictedClassIndex = predictedClass - 1
+        expectedClassIndex = expectedClass - 1
+        self.confusionMatrix[expectedClass][predictedClassIndex] += 1
+
 if __name__ == '__main__':
     n = NeuralNet([3, 100, 1], "haberman")
     n.startTraining()
