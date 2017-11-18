@@ -19,10 +19,9 @@ class Neuron():
             inputs->list of tuples containing the input (neuron or int) and its weight
                 [(Neuron, 0.123)]
             activationFn -> function used to do the prediction (neuron output)
-            output -> integer (used for neurons of the input layer)
-
-          TODO: Bias input!  
+            output -> integer (used for neurons of the input layer) 
         """
+
         self.inputs = inputs
         self.activationFn = activationFn
         self.output = output
@@ -47,6 +46,7 @@ class Neuron():
 
     def setOutput(self, newOutput):
         self.output = newOutput
+        self.testOutput = newOutput
 
 
 class NeuralNet():
@@ -87,11 +87,10 @@ class NeuralNet():
         x = [[self.datasetMatrix[i % len(self.datasetMatrix)][j] for j in range(len(self.datasetMatrix[0]) - 1)] for i in range(len(self.datasetMatrix))]
         y = [[self.datasetMatrix[i % len(self.datasetMatrix)][-1]-1] for i in range(len(self.datasetMatrix))]
 
-        for k in range(100):
+        for k in range(1000):
             for i in range(len(y)):
-                n.forwardProp(x[i % len(x)])
-                n.backProp(x, y, i % len(x), 0.01)
-                #print i, n.errorFunction(x, y)
+                n.forwardProp(x[i])
+                n.backProp(x, y, i, 0.1)
             print k, n.errorFunction(x, y)
 
     def forwardProp(self, instance, outputType = 0):
@@ -111,9 +110,9 @@ class NeuralNet():
             n.error = n.output - y[instanceIndex][i]
             print "saída da rede:", n.output, "saída esperada:", y[instanceIndex][i]
         for l in reversed(range(1, len(self.layers) - 1)):
-            for i in range(1, len(self.layers[l].neurons)): # does not calculate the delta for the first neuron because its the bias
+            for i in range(len(self.layers[l].neurons)):
                 n = self.layers[l].neurons[i]
-                n.error = reduce(lambda x,y: x+y, map(lambda x:x.inputs[i][1]*x.error, self.layers[l+1].neurons)) * n.output * (1 - n.output)
+                n.error = reduce(lambda x,y: x+y, map(lambda x:x.inputs[i+1][1]*x.error, self.layers[l+1].neurons)) * n.output * (1 - n.output)
 
         # computes derivatives (gradients) - backpropagation and numerical
         for l in range(1, len(self.layers)):
@@ -133,7 +132,7 @@ class NeuralNet():
                     error2 = self.errorFunction(x, y, instanceIndex)
                     n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] + eps, n.inputs[c][2])
 
-                    numericalDerivative = (error2 - error1) / (2 * eps)
+                    numericalDerivative = (error1 - error2) / (2 * eps)
                     print "Numerical derivative: ", numericalDerivative"""
 
         # update weights
@@ -152,9 +151,12 @@ class NeuralNet():
             self.forwardProp(x[i], 1)
 
             for k in range(len(y[i])):
-                if self.layers[-1].neurons[k].testOutput != 0: #o que essa linha faz?
-                    J = J + (-y[i][k] * (np.log(self.layers[-1].neurons[k].testOutput))
-                                - (1 - y[i][k]) * (np.log(1 - self.layers[-1].neurons[k].testOutput)))
+                output = self.layers[-1].neurons[k].testOutput
+                if output == 0:
+                    output = 0.0000001
+                if output == 1:
+                    output = 0.9999999
+                J = J - y[i][k] * (np.log(output)) - (1 - y[i][k]) * (np.log(1 - output))
 
         return J / len(y)
 
@@ -209,6 +211,6 @@ class DataSet():
         return ranges
 
 if __name__ == '__main__':
-    n = NeuralNet([3, 10, 10, 5, 1], "haberman")
+    n = NeuralNet([3, 100, 1], "haberman")
     n.startTraining()
 
