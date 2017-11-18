@@ -138,7 +138,8 @@ class NeuralNet():
         if self.possibleClasses > 2:
             print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
         elif self.possibleClasses == 2:
-            print "saída da rede:", self.layers[-1].neurons[0].output, "saída esperada:", self.expectedClassList[instanceIndex] - 1
+            outputClass = 1 if self.layers[-1].neurons[0].output < 0.5 else 2
+            print "saída da rede:", outputClass, "saída esperada:", self.expectedClassList[instanceIndex]
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
