@@ -62,8 +62,14 @@ class NeuralNet():
 
         self.datasetMatrix = DataSet(files[trainingSetName]).dataMatrix
 
-        if len(self.datasetMatrix[0]) - 1 != neurons[0]: #-1 because there are the attributes AND the class
+        self.attributesList = [[self.datasetMatrix[i % len(self.datasetMatrix)][j] for j in range(len(self.datasetMatrix[0]) - 1)] for i in range(len(self.datasetMatrix))]
+        self.expectedClassList = [self.datasetMatrix[i % len(self.datasetMatrix)][-1]-1 for i in range(len(self.datasetMatrix))]
+
+        if len(self.attributesList[0]) != neurons[0]: #-1 because there are the attributes AND the class
             raise "DataSet values do not match the number of attributes of the input layer"
+
+        if (max(self.expectedClassList) != neurons[-1]):
+            raise "Number of output neurons does not match with the number of classes of given DataSet"
 
         #When train, add new values for the first layer's fake neurons
         inputLayer = Layer([Neuron(output=0) for i in range(neurons[0])])
