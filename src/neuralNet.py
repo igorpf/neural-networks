@@ -76,6 +76,8 @@ class NeuralNet():
         elif neurons[-1] != 1:
             raise "There are only two classes, the output layer should have only one neuron."
 
+        self.performanceEvaluator = PerformanceEvaluator(self.possibleClasses)
+
         #When train, add new values for the first layer's fake neurons
         inputLayer = Layer([Neuron(output=0) for i in range(neurons[0])])
         layers = [inputLayer]
@@ -107,11 +109,12 @@ class NeuralNet():
         elif self.possibleClasses == 2:
             y = [[self.datasetMatrix[i % len(self.datasetMatrix)][-1] - 1] for i in range(len(self.datasetMatrix))]
 
-        for k in range(1000):
+        for k in range(2):
             for i in range(len(y)):
                 n.forwardProp(x[i])
                 n.backProp(x, y, i, 0.1)
             print k, n.errorFunction(x, y)
+        self.performanceEvaluator.computePrecision()
 
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
@@ -137,9 +140,11 @@ class NeuralNet():
 
         if self.possibleClasses > 2:
             print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+            self.performanceEvaluator.computeIteration(highestOutputValueClass, self.expectedClassList[instanceIndex])
         elif self.possibleClasses == 2:
             outputClass = 1 if self.layers[-1].neurons[0].output < 0.5 else 2
             print "saída da rede:", outputClass, "saída esperada:", self.expectedClassList[instanceIndex]
+            self.performanceEvaluator.computeIteration(highestOutputValueClass, self.expectedClassList[instanceIndex])
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
@@ -250,9 +255,14 @@ class PerformanceEvaluator:
     def computeIteration(self, predictedClass, expectedClass):
         predictedClassIndex = predictedClass - 1
         expectedClassIndex = expectedClass - 1
-        self.confusionMatrix[expectedClass][predictedClassIndex] += 1
+        self.confusionMatrix[expectedClassIndex][predictedClassIndex] += 1
+
+    def computePrecision(self):
+        print self.confusionMatrix
+
+    def resetConfusionMatrix(self):
+        self.confusionMatrix = np.zeros(shape=(self.numberOfClasses, self.numberOfClasses))
 
 if __name__ == '__main__':
     n = NeuralNet([3, 100, 1], "haberman")
     n.startTraining()
-
