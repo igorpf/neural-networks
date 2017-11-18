@@ -67,10 +67,10 @@ class NeuralNet():
             raise "DataSet values do not match the number of attributes of the input layer"
 
         self.expectedClassList = [self.datasetMatrix[i % len(self.datasetMatrix)][-1] for i in range(len(self.datasetMatrix))]
+        self.possibleClasses = max(self.expectedClassList)
 
-        print self.datasetMatrix
-        if max(self.expectedClassList) > 2:
-            if max(self.expectedClassList) != neurons[-1]:
+        if self.possibleClasses > 2:
+            if self.possibleClasses != neurons[-1]:
                 raise "Number of output neurons does not match with the number of classes of given DataSet. DataSets with more"\
                       "than two output classes should have one neuron for each class."
         elif neurons[-1] != 1:
@@ -96,7 +96,16 @@ class NeuralNet():
     def startTraining(self):
 
         x = self.attributesList
-        y = [[self.datasetMatrix[i % len(self.datasetMatrix)][-1]-1] for i in range(len(self.datasetMatrix))]
+        y = []
+        if self.possibleClasses > 2:
+            for i in range(len(self.expectedClassList)):
+                expectedOutputsForLastLayer = []
+                for possibleClass in range(1, int(self.possibleClasses) + 1):
+                    expectedOutputsForLastLayer.append(1 if possibleClass == self.expectedClassList[i] else 0)
+                y.append(expectedOutputsForLastLayer)
+            print y
+        elif self.possibleClasses == 2:
+            y = [[self.datasetMatrix[i % len(self.datasetMatrix)][-1] - 1] for i in range(len(self.datasetMatrix))]
 
         for k in range(1000):
             for i in range(len(y)):
@@ -114,7 +123,7 @@ class NeuralNet():
             pass
 
     def backProp(self, x, y, instanceIndex, alpha = 0.1, eps = np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
-
+        print "\n"
         # compute errors (deltas)
         for i in range(len(self.layers[-1].neurons)):
             n = self.layers[-1].neurons[i]
