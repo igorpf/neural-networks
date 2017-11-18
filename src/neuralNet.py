@@ -135,7 +135,10 @@ class NeuralNet():
                 highestOutputValue = n.output
                 highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
 
-        print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+        if self.possibleClasses > 2:
+            print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+        elif self.possibleClasses == 2:
+            print "saída da rede:", self.layers[-1].neurons[0].output, "saída esperada:", self.expectedClassList[instanceIndex] - 1
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
@@ -239,6 +242,6 @@ class DataSet():
         return ranges
 
 if __name__ == '__main__':
-    n = NeuralNet([9, 100, 3], "cmc")
+    n = NeuralNet([3, 100, 1], "haberman")
     n.startTraining()
 
