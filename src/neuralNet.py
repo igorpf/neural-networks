@@ -90,7 +90,7 @@ class NeuralNet():
 
     def startTraining(self):
 
-        x = [[self.datasetMatrix[i % len(self.datasetMatrix)][j] for j in range(len(self.datasetMatrix[0]) - 1)] for i in range(len(self.datasetMatrix))]
+        x = self.attributesList
         y = [[self.datasetMatrix[i % len(self.datasetMatrix)][-1]-1] for i in range(len(self.datasetMatrix))]
 
         for k in range(1000):
