@@ -4,8 +4,6 @@
 # Created by igor on 12/10/2017
 import numpy as np
 import functions as fn
-from random import randint
-import cPickle as pickle
 from files import files
 import crossValidation as cv
 
@@ -69,12 +67,8 @@ class NeuralNet():
         self.expectedClassList = [self.datasetMatrix[i % len(self.datasetMatrix)][-1] for i in range(len(self.datasetMatrix))]
         self.possibleClasses = max(self.expectedClassList)
 
-        if self.possibleClasses > 2:
-            if self.possibleClasses != neurons[-1]:
-                raise "Number of output neurons does not match with the number of classes of given DataSet. DataSets with more"\
-                      "than two output classes should have one neuron for each class."
-        elif neurons[-1] != 1:
-            raise "There are only two classes, the output layer should have only one neuron."
+        if self.possibleClasses != neurons[-1]:
+            raise "Number of output neurons does not match with the number of classes of given DataSet."
 
         self.performanceEvaluator = PerformanceEvaluator(self.possibleClasses)
 
@@ -99,22 +93,20 @@ class NeuralNet():
 
         x = self.attributesList
         y = []
-        if self.possibleClasses > 2:
-            for i in range(len(self.expectedClassList)):
-                expectedOutputsForLastLayer = []
-                for possibleClass in range(1, int(self.possibleClasses) + 1):
-                    expectedOutputsForLastLayer.append(1 if possibleClass == self.expectedClassList[i] else 0)
-                y.append(expectedOutputsForLastLayer)
-            print y
-        elif self.possibleClasses == 2:
-            y = [[self.datasetMatrix[i % len(self.datasetMatrix)][-1] - 1] for i in range(len(self.datasetMatrix))]
 
-        for k in range(2):
+        for i in range(len(self.expectedClassList)):
+            expectedOutputsForLastLayer = []
+            for possibleClass in range(1, int(self.possibleClasses) + 1):
+                expectedOutputsForLastLayer.append(1 if possibleClass == self.expectedClassList[i] else 0)
+            y.append(expectedOutputsForLastLayer)
+        print y
+
+        for k in range(1000):
             for i in range(len(y)):
                 n.forwardProp(x[i])
                 n.backProp(x, y, i, 0.1)
             print k, n.errorFunction(x, y)
-        self.performanceEvaluator.computePrecision()
+        #self.performanceEvaluator.computePrecision()
 
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
@@ -125,7 +117,8 @@ class NeuralNet():
                 neuron.predict(outputType)
             pass
 
-    def backProp(self, x, y, instanceIndex, alpha = 0.1, eps = np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
+    def backProp(self, x, y, instanceIndex, alpha = 0.003, eps = np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
+
         print "\n"
 
         highestOutputValue = 0
@@ -138,13 +131,9 @@ class NeuralNet():
                 highestOutputValue = n.output
                 highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
 
-        if self.possibleClasses > 2:
-            print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
-            self.performanceEvaluator.computeIteration(highestOutputValueClass, self.expectedClassList[instanceIndex])
-        elif self.possibleClasses == 2:
-            outputClass = 1 if self.layers[-1].neurons[0].output < 0.5 else 2
-            print "saída da rede:", outputClass, "saída esperada:", self.expectedClassList[instanceIndex]
-            self.performanceEvaluator.computeIteration(highestOutputValueClass, self.expectedClassList[instanceIndex])
+
+        print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+        self.performanceEvaluator.computeIteration(highestOutputValueClass, self.expectedClassList[instanceIndex])
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
@@ -223,11 +212,11 @@ class DataSet():
         with open(file) as file:
             for i, line in enumerate(file):
                 line = line.rstrip("\n")
-                words = map(lambda x: float(x) ,line.split(","))
+                words = map(lambda x: float(x), line.split(","))
                 self.dataMatrix += [words]
 
-    def normalizeFeatures(self, ranges = None):
-        if ranges == None:
+    def normalizeFeatures(self, ranges=None):
+        if ranges==None:
             self.ranges = self.defineRanges()
             print self.ranges
         else:
@@ -264,5 +253,5 @@ class PerformanceEvaluator:
         self.confusionMatrix = np.zeros(shape=(self.numberOfClasses, self.numberOfClasses))
 
 if __name__ == '__main__':
-    n = NeuralNet([3, 100, 1], "haberman")
+    n = NeuralNet([3, 5, 5, 2], "haberman")
     n.startTraining()
