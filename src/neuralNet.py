@@ -104,7 +104,7 @@ class NeuralNet():
         for k in range(1000):
             for i in range(len(y)):
                 n.forwardProp(x[i])
-                n.backProp(x, y, i, 0.1, True)
+                n.backProp(x, y, i, 0.001)
             print k, n.errorFunction(x, y)
         #self.performanceEvaluator.computePrecision()
 
@@ -254,5 +254,5 @@ class PerformanceEvaluator:
         self.confusionMatrix = np.zeros(shape=(self.numberOfClasses, self.numberOfClasses))
 
 if __name__ == '__main__':
-    n = NeuralNet([3, 1, 2], "haberman")
+    n = NeuralNet([3, 10, 10, 2], "haberman")
     n.startTraining()
