@@ -147,25 +147,25 @@ class NeuralNet():
                 neuron = neuron + 1
                 for c in range(len(n.inputs)):
                     n.inputs[c] = (n.inputs[c][0], n.inputs[c][1], n.inputs[c][0].output * n.error)
-                    """print "\nGradients for input", c, "weight of neuron", neuron, "of layer", l
-                    print "Backpropagation derivative: ", n.inputs[c][2]
-
-                    n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] + eps, n.inputs[c][2])
-                    error1 = self.errorFunction(x, y, instanceIndex)
-                    n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] - eps, n.inputs[c][2])
-
-                    n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] - eps, n.inputs[c][2])
-                    error2 = self.errorFunction(x, y, instanceIndex)
-                    n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] + eps, n.inputs[c][2])
-
-                    numericalDerivative = (error1 - error2) / (2 * eps)
-                    print "Numerical derivative: ", numericalDerivative"""
+                    self.numericalEvaluation(c, eps, instanceIndex, l, n, neuron, x, y)
 
         # update weights
         for l in range(1, len(self.layers)):
             for n in self.layers[l].neurons:
                 for c in range(len(n.inputs)):
                     n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] - alpha * n.inputs[c][2], n.inputs[c][2])
+
+    def numericalEvaluation(self, c, eps, instanceIndex, l, n, neuron, x, y):
+        print "\nGradients for input", c, "weight of neuron", neuron, "of layer", l
+        print "Backpropagation derivative: ", n.inputs[c][2]
+        n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] + eps, n.inputs[c][2])
+        error1 = self.errorFunction(x, y, instanceIndex)
+        n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] - eps, n.inputs[c][2])
+        n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] - eps, n.inputs[c][2])
+        error2 = self.errorFunction(x, y, instanceIndex)
+        n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] + eps, n.inputs[c][2])
+        numericalDerivative = (error1 - error2) / (2 * eps)
+        print "Numerical derivative: ", numericalDerivative
 
     def errorFunction(self, x, y, instanceIndex = None):
         self.cleanOutputs()
