@@ -104,7 +104,7 @@ class NeuralNet():
         for k in range(1000):
             for i in range(len(y)):
                 n.forwardProp(x[i])
-                n.backProp(x, y, i, 0.1)
+                n.backProp(x, y, i, 0.1, True)
             print k, n.errorFunction(x, y)
         #self.performanceEvaluator.computePrecision()
 
@@ -117,7 +117,7 @@ class NeuralNet():
                 neuron.predict(outputType)
             pass
 
-    def backProp(self, x, y, instanceIndex, alpha = 0.003, eps = np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
+    def backProp(self, x, y, instanceIndex, alpha=0.003, numericalEval=False, eps=np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
 
         print "\n"
 
@@ -147,7 +147,8 @@ class NeuralNet():
                 neuron = neuron + 1
                 for c in range(len(n.inputs)):
                     n.inputs[c] = (n.inputs[c][0], n.inputs[c][1], n.inputs[c][0].output * n.error)
-                    self.numericalEvaluation(c, eps, instanceIndex, l, n, neuron, x, y)
+                    if numericalEval:
+                        self.numericalEvaluation(c, eps, instanceIndex, l, n, neuron, x, y)
 
         # update weights
         for l in range(1, len(self.layers)):
@@ -253,5 +254,5 @@ class PerformanceEvaluator:
         self.confusionMatrix = np.zeros(shape=(self.numberOfClasses, self.numberOfClasses))
 
 if __name__ == '__main__':
-    n = NeuralNet([3, 5, 5, 2], "haberman")
+    n = NeuralNet([3, 1, 2], "haberman")
     n.startTraining()
