@@ -101,12 +101,12 @@ class NeuralNet():
             y.append(expectedOutputsForLastLayer)
         print y
 
-        for k in range(1000):
+        for k in range(1):
             for i in range(len(y)):
                 n.forwardProp(x[i])
                 n.backProp(x, y, i, 0.001)
             print k, n.errorFunction(x, y)
-        #self.performanceEvaluator.computePrecision()
+        self.performanceEvaluator.computePrecision()
 
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
@@ -131,9 +131,11 @@ class NeuralNet():
                 highestOutputValue = n.output
                 highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
 
+        for i in range(len(self.layers[-1].neurons)):
+            self.performanceEvaluator.computeIteration(0 if n.output < 0.5 else 1, y[instanceIndex][i], highestOutputValueClass)
 
         print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
-        self.performanceEvaluator.computeIteration(highestOutputValueClass, self.expectedClassList[instanceIndex])
+
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
@@ -240,15 +242,28 @@ class DataSet():
 class PerformanceEvaluator:
     def __init__(self, numberOfClasses):
         self.numberOfClasses = numberOfClasses
-        self.confusionMatrix = np.zeros(shape=(numberOfClasses, numberOfClasses))
+        self.truePositives = np.zeros(self.numberOfClasses)
+        self.falsePositives = np.zeros(self.numberOfClasses)
+        self.trueNegatives = np.zeros(self.numberOfClasses)
+        self.falseNegatives = np.zeros(self.numberOfClasses)
 
-    def computeIteration(self, predictedClass, expectedClass):
-        predictedClassIndex = predictedClass - 1
+    def computeIteration(self, predicted, expected, expectedClass):
         expectedClassIndex = expectedClass - 1
-        self.confusionMatrix[expectedClassIndex][predictedClassIndex] += 1
+        if predicted == 1 and expected == 1:
+            self.truePositives[expectedClassIndex]+=1
+        elif predicted == 1 and expected == 0:
+            self.falsePositives[expectedClassIndex]+=1
+        elif predicted == 0 and expected == 0:
+            self.trueNegatives[expectedClassIndex]+=1
+        elif predicted == 0 and expected == 1:
+            self.falseNegatives[expectedClassIndex]+=1
+
 
     def computePrecision(self):
-        print self.confusionMatrix
+        print "True Positives ", self.truePositives
+        print "True Negatives ", self.trueNegatives
+        print "False Positives ", self.falsePositives
+        print "False Negatives", self.falseNegatives
 
     def resetConfusionMatrix(self):
         self.confusionMatrix = np.zeros(shape=(self.numberOfClasses, self.numberOfClasses))
