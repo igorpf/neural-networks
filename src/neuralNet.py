@@ -57,6 +57,7 @@ class NeuralNet():
         """
 
         self.trainingSetName = trainingSetName
+        self.regularizationRate = 1
 
         self.datasetMatrix = DataSet(files[trainingSetName]).dataMatrix
 
@@ -70,7 +71,7 @@ class NeuralNet():
         if self.possibleClasses != neurons[-1]:
             raise "Number of output neurons does not match with the number of classes of given DataSet."
 
-        self.performanceEvaluator = PerformanceEvaluator(self.possibleClasses)
+        # self.performanceEvaluator = PerformanceEvaluator(self.possibleClasses)
 
         #When train, add new values for the first layer's fake neurons
         inputLayer = Layer([Neuron(output=0) for i in range(neurons[0])])
@@ -104,9 +105,9 @@ class NeuralNet():
         for k in range(1):
             for i in range(len(y)):
                 n.forwardProp(x[i])
-                n.backProp(x, y, i, 0.001)
+                n.backProp(x, y, i, 0.1)
             print k, n.errorFunction(x, y)
-        self.performanceEvaluator.computePrecision()
+        # self.performanceEvaluator.computePrecision()
 
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
@@ -131,11 +132,10 @@ class NeuralNet():
                 highestOutputValue = n.output
                 highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
 
-        for i in range(len(self.layers[-1].neurons)):
-            self.performanceEvaluator.computeIteration(0 if n.output < 0.5 else 1, y[instanceIndex][i], highestOutputValueClass)
+        # for i in range(len(self.layers[-1].neurons)):
+        #     self.performanceEvaluator.computeIteration(0 if n.output < 0.5 else 1, y[instanceIndex][i], highestOutputValueClass)
 
         print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
-
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
@@ -148,14 +148,17 @@ class NeuralNet():
             for n in self.layers[l].neurons:
                 neuron = neuron + 1
                 for c in range(len(n.inputs)):
-                    n.inputs[c] = (n.inputs[c][0], n.inputs[c][1], n.inputs[c][0].output * n.error)
+                    # print map(lambda x:x[1]**2, n.inputs[1:])
+                    reg = self.regularizationRate * n.inputs[c][1]
+                    # print reg
+                    n.inputs[c] = (n.inputs[c][0], n.inputs[c][1], n.inputs[c][0].output * n.error+reg)
                     if numericalEval:
                         self.numericalEvaluation(c, eps, instanceIndex, l, n, neuron, x, y)
 
         # update weights
         for l in range(1, len(self.layers)):
             for n in self.layers[l].neurons:
-                for c in range(len(n.inputs)):
+                for c in range(len(n.inputs)):                    
                     n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] - alpha * n.inputs[c][2], n.inputs[c][2])
 
     def numericalEvaluation(self, c, eps, instanceIndex, l, n, neuron, x, y):
@@ -186,6 +189,16 @@ class NeuralNet():
                 if output == 1:
                     output = 0.9999999
                 J = J - y[i][k] * (np.log(output)) - (1 - y[i][k]) * (np.log(1 - output))
+        allInputs = []
+        for n in map(lambda x:x.neurons,self.layers):
+            for i in n:
+                allInputs.append(i.inputs)
+        # flatten a list of lists to a one-level list
+        allInputs = map(lambda x:x[1]**2,[i for sub in allInputs for i in sub])
+        reg = self.regularizationRate* reduce(lambda x,y: x+y,allInputs)/(2*len(y))
+        # print reg
+        J += reg
+        
 
         return J / len(y)
 
