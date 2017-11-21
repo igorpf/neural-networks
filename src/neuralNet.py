@@ -102,7 +102,7 @@ class NeuralNet():
             y.append(expectedOutputsForLastLayer)
         print y
 
-        for k in range(1):
+        for k in range(10):
             for i in range(len(y)):
                 n.forwardProp(x[i])
                 n.backProp(x, y, i, 0.1)
@@ -133,7 +133,9 @@ class NeuralNet():
                 highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
 
         # for i in range(len(self.layers[-1].neurons)):
-        #     self.performanceEvaluator.computeIteration(0 if n.output < 0.5 else 1, y[instanceIndex][i], highestOutputValueClass)
+        #     n = self.layers[-1].neurons[i]
+        #     iNeuronOutput = 0 if n.output < 0.5 else 1
+        #     self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], highestOutputValueClass)
 
         print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
 
@@ -259,6 +261,9 @@ class PerformanceEvaluator:
         self.falsePositives = np.zeros(self.numberOfClasses)
         self.trueNegatives = np.zeros(self.numberOfClasses)
         self.falseNegatives = np.zeros(self.numberOfClasses)
+        self.precision = np.zeros(self.numberOfClasses)
+        self.recall = np.zeros(self.numberOfClasses)
+        self.f = np.zeros(self.numberOfClasses)
 
     def computeIteration(self, predicted, expected, expectedClass):
         expectedClassIndex = expectedClass - 1
@@ -273,10 +278,14 @@ class PerformanceEvaluator:
 
 
     def computePrecision(self):
-        print "True Positives ", self.truePositives
-        print "True Negatives ", self.trueNegatives
-        print "False Positives ", self.falsePositives
-        print "False Negatives", self.falseNegatives
+
+        for i in range(0, int(self.numberOfClasses)):
+            precision = 0
+            precision+=self.truePositives[i]
+            precision+=self.trueNegatives[i]
+            n = self.truePositives[i] + self.trueNegatives[i] + self.falsePositives[i] + self.falseNegatives[i]
+            self.precision[i] = precision/n
+        print "Medium Precision: ", reduce(lambda x,y: x+y, self.precision)/len(self.precision)
 
     def resetConfusionMatrix(self):
         self.confusionMatrix = np.zeros(shape=(self.numberOfClasses, self.numberOfClasses))
