@@ -58,7 +58,7 @@ class NeuralNet():
         """
 
         self.trainingSetName = trainingSetName
-        self.regularizationRate = 1
+        self.regularizationRate = 0.05
 
         self.datasetMatrix = DataSet(files[trainingSetName]).dataMatrix
 
@@ -125,7 +125,7 @@ class NeuralNet():
 
     def backProp(self, x, y, instanceIndex, alpha=0.003, numericalEval=False, eps=np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
 
-        print "\n"
+        #print "\n"
 
         highestOutputValue = 0
         highestOutputValue = -1
@@ -141,7 +141,7 @@ class NeuralNet():
              iNeuronOutput = 0 if n.output < 0.5 else 1
              self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], self.expectedClassList[instanceIndex])
 
-        print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+        #print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
