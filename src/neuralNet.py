@@ -6,6 +6,7 @@ import numpy as np
 import functions as fn
 from files import files
 import crossValidation as cv
+from PerformanceEvaluator import PerformanceEvaluator
 
 class Layer():
     def __init__(self, neurons):
@@ -71,7 +72,7 @@ class NeuralNet():
         if self.possibleClasses != neurons[-1]:
             raise "Number of output neurons does not match with the number of classes of given DataSet."
 
-        # self.performanceEvaluator = PerformanceEvaluator(self.possibleClasses)
+        self.performanceEvaluator = PerformanceEvaluator(self.possibleClasses)
 
         #When train, add new values for the first layer's fake neurons
         inputLayer = Layer([Neuron(output=0) for i in range(neurons[0])])
@@ -107,7 +108,7 @@ class NeuralNet():
                 n.forwardProp(x[i])
                 n.backProp(x, y, i, 0.1)
             print k, n.errorFunction(x, y)
-        # self.performanceEvaluator.computePrecision()
+            self.performanceEvaluator.computePrecision()
 
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
@@ -120,7 +121,7 @@ class NeuralNet():
 
     def backProp(self, x, y, instanceIndex, alpha=0.003, numericalEval=False, eps=np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
 
-        print "\n"
+        #print "\n"
 
         highestOutputValue = 0
         highestOutputValueClass = -1
@@ -137,7 +138,7 @@ class NeuralNet():
         #     iNeuronOutput = 0 if n.output < 0.5 else 1
         #     self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], highestOutputValueClass)
 
-        print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+        #print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
@@ -253,42 +254,6 @@ class DataSet():
             column = map(lambda x:x[i],self.dataMatrix)
             ranges += [[min(column),max(column)]]
         return ranges
-
-class PerformanceEvaluator:
-    def __init__(self, numberOfClasses):
-        self.numberOfClasses = numberOfClasses
-        self.truePositives = np.zeros(self.numberOfClasses)
-        self.falsePositives = np.zeros(self.numberOfClasses)
-        self.trueNegatives = np.zeros(self.numberOfClasses)
-        self.falseNegatives = np.zeros(self.numberOfClasses)
-        self.precision = np.zeros(self.numberOfClasses)
-        self.recall = np.zeros(self.numberOfClasses)
-        self.f = np.zeros(self.numberOfClasses)
-
-    def computeIteration(self, predicted, expected, expectedClass):
-        expectedClassIndex = expectedClass - 1
-        if predicted == 1 and expected == 1:
-            self.truePositives[expectedClassIndex]+=1
-        elif predicted == 1 and expected == 0:
-            self.falsePositives[expectedClassIndex]+=1
-        elif predicted == 0 and expected == 0:
-            self.trueNegatives[expectedClassIndex]+=1
-        elif predicted == 0 and expected == 1:
-            self.falseNegatives[expectedClassIndex]+=1
-
-
-    def computePrecision(self):
-
-        for i in range(0, int(self.numberOfClasses)):
-            precision = 0
-            precision+=self.truePositives[i]
-            precision+=self.trueNegatives[i]
-            n = self.truePositives[i] + self.trueNegatives[i] + self.falsePositives[i] + self.falseNegatives[i]
-            self.precision[i] = precision/n
-        print "Medium Precision: ", reduce(lambda x,y: x+y, self.precision)/len(self.precision)
-
-    def resetConfusionMatrix(self):
-        self.confusionMatrix = np.zeros(shape=(self.numberOfClasses, self.numberOfClasses))
 
 if __name__ == '__main__':
     n = NeuralNet([3, 10, 10, 2], "haberman")
