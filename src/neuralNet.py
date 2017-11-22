@@ -106,7 +106,7 @@ class NeuralNet():
         for k in range(1000):
             for i in range(len(y)):
                 n.forwardProp(x[i])
-                n.backProp(x, y, i, 0.3)
+                n.backProp(x, y, i, 0.01)
             print k, n.errorFunction(x, y)
             self.performanceEvaluator.computePrecision()
             self.performanceEvaluator.resetConfusionMatrix()
@@ -125,14 +125,12 @@ class NeuralNet():
         #print "\n"
 
         highestOutputValue = 0
-        highestOutputValueClass = -1
         # compute errors (deltas)
         for i in range(len(self.layers[-1].neurons)):
             n = self.layers[-1].neurons[i]
             n.error = n.output - y[instanceIndex][i]
             if n.output > highestOutputValue:
                 highestOutputValue = n.output
-                highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
 
         for i in range(len(self.layers[-1].neurons)):
              n = self.layers[-1].neurons[i]
