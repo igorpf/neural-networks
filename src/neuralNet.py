@@ -106,7 +106,7 @@ class NeuralNet():
         for k in range(1000):
             for i in range(len(y)):
                 n.forwardProp(x[i])
-                n.backProp(x, y, i, 0.01)
+                n.backProp(x, y, i, 0.1)
             print k, n.errorFunction(x, y)
             self.performanceEvaluator.computePrecision()
             self.performanceEvaluator.resetConfusionMatrix()
@@ -122,22 +122,23 @@ class NeuralNet():
 
     def backProp(self, x, y, instanceIndex, alpha=0.003, numericalEval=False, eps=np.finfo(np.float32).eps, errorFn=fn.errorMeanSq):
 
-        #print "\n"
+        print "\n"
 
         highestOutputValue = 0
+        highestOutputValue = -1
         # compute errors (deltas)
         for i in range(len(self.layers[-1].neurons)):
             n = self.layers[-1].neurons[i]
             n.error = n.output - y[instanceIndex][i]
             if n.output > highestOutputValue:
                 highestOutputValue = n.output
-
+                highestOutputValueClass= i + 1
         for i in range(len(self.layers[-1].neurons)):
              n = self.layers[-1].neurons[i]
              iNeuronOutput = 0 if n.output < 0.5 else 1
              self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], self.expectedClassList[instanceIndex])
 
-        #print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+        print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
