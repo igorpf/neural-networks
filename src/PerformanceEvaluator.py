@@ -28,11 +28,10 @@ class PerformanceEvaluator:
 
         for i in range(0, int(self.numberOfClasses)):
             precision = 0
-            precision+=self.truePositives[i]
-            precision+=self.trueNegatives[i]
-            n = self.truePositives[i] + self.trueNegatives[i] + self.falsePositives[i] + self.falseNegatives[i]
-            self.precision[i] = precision/n
-        print "Medium Precision: ", reduce(lambda x,y: x+y, self.precision)/len(self.precision)
+            if self.truePositives[i] > 0:
+                precision += self.truePositives[i]
+                self.precision[i] = precision/(self.truePositives[i] + self.falsePositives[i])
+        print "Medium Precision: ", reduce(lambda x, y: x+y, self.precision)/self.numberOfClasses
 
     def resetConfusionMatrix(self):
         self.truePositives = np.zeros(self.numberOfClasses)
