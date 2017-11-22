@@ -108,7 +108,10 @@ class NeuralNet():
                 n.forwardProp(x[i])
                 n.backProp(x, y, i, 0.1)
             print k, n.errorFunction(x, y)
+            self.performanceEvaluator.computeAccuracy()
             self.performanceEvaluator.computePrecision()
+            self.performanceEvaluator.computeRecall()
+            self.performanceEvaluator.computeFMeasure()
             self.performanceEvaluator.resetConfusionMatrix()
 
     def forwardProp(self, instance, outputType = 0):
