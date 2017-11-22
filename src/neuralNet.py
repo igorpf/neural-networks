@@ -133,10 +133,10 @@ class NeuralNet():
                 highestOutputValue = n.output
                 highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
 
-        # for i in range(len(self.layers[-1].neurons)):
-        #     n = self.layers[-1].neurons[i]
-        #     iNeuronOutput = 0 if n.output < 0.5 else 1
-        #     self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], highestOutputValueClass)
+         for i in range(len(self.layers[-1].neurons)):
+             n = self.layers[-1].neurons[i]
+             iNeuronOutput = 0 if n.output < 0.5 else 1
+             self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], highestOutputValueClass)
 
         #print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
 
