@@ -50,13 +50,14 @@ class Neuron():
 
 class NeuralNet():
     """docstring for neuralNet"""
-    def __init__(self, neurons=[1], trainingSetName = "haberman"):
+    def __init__(self, neurons=[1], trainingSetName = "haberman", numericalEvaluation=False):
         """Constructor:
         args:
             neurons(list of ints):  list representing the size of each layer. The number
                 of layers is the size of the list (of course)
         """
 
+        self.numericalEvaluation = numericalEvaluation
         self.trainingSetName = trainingSetName
         self.regularizationRate = 0.05
 
@@ -158,7 +159,7 @@ class NeuralNet():
                     reg = self.regularizationRate * n.inputs[c][1]
                     # print reg
                     n.inputs[c] = (n.inputs[c][0], n.inputs[c][1], n.inputs[c][0].output * n.error+reg)
-                    if numericalEval:
+                    if self.numericalEvaluation:
                         self.numericalEvaluation(c, eps, instanceIndex, l, n, neuron, x, y)
 
         # update weights
