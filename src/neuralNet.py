@@ -103,12 +103,13 @@ class NeuralNet():
             y.append(expectedOutputsForLastLayer)
         print y
 
-        for k in range(10):
+        for k in range(1000):
             for i in range(len(y)):
                 n.forwardProp(x[i])
-                n.backProp(x, y, i, 0.1)
+                n.backProp(x, y, i, 0.3)
             print k, n.errorFunction(x, y)
             self.performanceEvaluator.computePrecision()
+            self.performanceEvaluator.resetConfusionMatrix()
 
     def forwardProp(self, instance, outputType = 0):
         for i in range(len(instance)):
@@ -133,10 +134,10 @@ class NeuralNet():
                 highestOutputValue = n.output
                 highestOutputValueClass = i + 1 #+ 1 pois as classes começam em 1
 
-         for i in range(len(self.layers[-1].neurons)):
+        for i in range(len(self.layers[-1].neurons)):
              n = self.layers[-1].neurons[i]
              iNeuronOutput = 0 if n.output < 0.5 else 1
-             self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], highestOutputValueClass)
+             self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], self.expectedClassList[instanceIndex])
 
         #print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
 

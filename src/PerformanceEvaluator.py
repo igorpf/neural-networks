@@ -37,7 +37,6 @@ class PerformanceEvaluator:
         print "TN", self.trueNegatives
         print "FN", self.falseNegatives
 
-        print "Precision for each class", self.precision
         print "Medium Precision: ", reduce(lambda x, y: x+y, self.precision)/self.numberOfClasses
 
     def resetConfusionMatrix(self):
