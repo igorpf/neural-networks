@@ -11,7 +11,7 @@ class PerformanceEvaluator:
         self.precision = np.zeros(self.numberOfClasses)
         self.recall = np.zeros(self.numberOfClasses)
         self.accuracy = np.zeros(self.numberOfClasses)
-        self.f = np.zeros(self.numberOfClasses)
+        self.fMeasure = np.zeros(self.numberOfClasses)
 
     def computeIteration(self, predicted, expected, expectedClass):
         expectedClassIndex = expectedClass - 1
@@ -52,11 +52,20 @@ class PerformanceEvaluator:
         for i in range(0, int(self.numberOfClasses)):
             accuracy = 0
             if self.truePositives[i] > 0:
-                accuracy += self.truePositives[i] + self.trueNegatives[i]
+                accuracy += self.truePositives[i] + self.truePositives[i]
                 self.accuracy[i] = accuracy/(self.truePositives[i] + self.falsePositives[i] + self.trueNegatives + self.falseNegatives[i])
 
         print "Medium Accuracy: ", reduce(lambda x, y: x+y, self.accuracy)/self.numberOfClasses
 
+
+    def computeFMeasure(self, beta=0.5): #beta 0.5 dá ênfase na precisão.
+
+        for i in range(0, int(self.numberOfClasses)):
+            num = self.precision[i] * self.recall[i]
+            den = beta**2 * self.precision[i] + self.recall[i]
+            self.fMeasure[i] = (1 + beta**2) * (num/den)
+
+        print "Medium Accuracy: ", reduce(lambda x, y: x+y, self.f)/self.numberOfClasses
 
     def resetConfusionMatrix(self):
         self.truePositives = np.zeros(self.numberOfClasses)
@@ -66,4 +75,4 @@ class PerformanceEvaluator:
         self.precision = np.zeros(self.numberOfClasses)
         self.recall = np.zeros(self.numberOfClasses)
         self.accuracy = np.zeros(self.numberOfClasses)
-        self.f = np.zeros(self.numberOfClasses)
+        self.fMeasure = np.zeros(self.numberOfClasses)
