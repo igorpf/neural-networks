@@ -60,7 +60,7 @@ class NeuralNet():
                 of layers is the size of the list (of course)
         """
 
-        self.numericalEvaluation = numericalEvaluation
+        self.makeNumericalEvaluation = numericalEvaluation
         #self.trainingSetName = trainingSetName
         self.learningRate = learningRate
         self.regularizationRate = regularizationRate
@@ -69,6 +69,8 @@ class NeuralNet():
         self.datasetMatrix = datasetMatrix
 
         self.attributesList = [[self.datasetMatrix[i % len(self.datasetMatrix)][j] for j in range(len(self.datasetMatrix[0]) - 1)] for i in range(len(self.datasetMatrix))]
+        # print self.attributesList
+        print len(self.attributesList[0])
         if len(self.attributesList[0]) != neurons[0]: #-1 because there are the attributes AND the class
             raise "DataSet values do not match the number of attributes of the input layer"
 
@@ -153,7 +155,7 @@ class NeuralNet():
                     reg = self.regularizationRate * n.inputs[c][1]
                     # print reg
                     n.inputs[c] = (n.inputs[c][0], n.inputs[c][1], n.inputs[c][0].output * n.error+reg)
-                    if self.numericalEvaluation:
+                    if self.makeNumericalEvaluation:
                         self.numericalEvaluation(c, eps, instanceIndex, l, n, neuron, x, y)
 
         # update weights
@@ -165,13 +167,14 @@ class NeuralNet():
     def numericalEvaluation(self, c, eps, instanceIndex, l, n, neuron, x, y):
         print "\nGradients for input", c, "weight of neuron", neuron, "of layer", l
         print "Backpropagation derivative: ", n.inputs[c][2]
+        reg = self.regularizationRate * n.inputs[c][1]
         n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] + eps, n.inputs[c][2])
         error1 = self.errorFunction(x, y, instanceIndex)
         n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] - eps, n.inputs[c][2])
         n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] - eps, n.inputs[c][2])
         error2 = self.errorFunction(x, y, instanceIndex)
         n.inputs[c] = (n.inputs[c][0], n.inputs[c][1] + eps, n.inputs[c][2])
-        numericalDerivative = (error1 - error2) / (2 * eps)
+        numericalDerivative = (error1 - error2) / (2 * eps) + reg
         print "Numerical derivative: ", numericalDerivative
 
     def errorFunction(self, x, y, instanceIndex = None):
@@ -265,7 +268,7 @@ if __name__ == '__main__':
     folds = cv.fold(trainingAndValidationSet, f.classProportion, f.classIndex)
 
     configs = [
-        [[3], 0.1, 0]]
+        [[3,4,2], 0.1, 1]]
 
     n = []
 
@@ -278,7 +281,7 @@ if __name__ == '__main__':
         for j in range(1):
             trainingSet = folds[(j+1)%5] + folds[(j+2)%5] + folds[(j+3)%5] + folds[(j+4)%5]
             validationSet = folds[j]
-            n += [NeuralNet(neurons, trainingSet, configs[i][1], configs[i][2])]
+            n += [NeuralNet(neurons, trainingSet, configs[i][1], configs[i][2], numericalEvaluation=True)]
             n[j].startTraining(60)
 
 
