@@ -112,7 +112,7 @@ class NeuralNet():
         #print y
 
         for k in range(K):
-            for i in range(len(y)):
+            for i in (range(0,1) if self.makeNumericalEvaluation else range(len(y))):
                 self.forwardProp(x[i])
                 self.backProp(x, y, i, self.learningRate)
             #print k, self.errorFunction(x, y)
