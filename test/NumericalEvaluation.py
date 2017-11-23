@@ -11,5 +11,5 @@ from files import files
 if __name__ == '__main__':
     f = files["haberman"]
     ds = DataSet(f)
-    n = NeuralNet([3, 1, 2], ds.dataMatrix)
+    n = NeuralNet([3, 1, 2], ds.dataMatrix, numericalEvaluation=True)
     n.startTraining(60)
