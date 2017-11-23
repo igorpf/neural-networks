@@ -33,6 +33,9 @@ class Neuron():
             self.output = self.activationFn['fn'](
                 reduce(lambda x,y: x+y, map(lambda x:x[0].output*(x[1]), self.inputs))
             )
+            #if flag:
+            #    print self.inputs[0][0].output, self.inputs[0][1], self.inputs[1][0].output, self.inputs[1][1]
+            #    print self.output
         else:
             self.testOutput = self.activationFn['fn'](
                 reduce(lambda x,y: x+y, map(lambda x:x[0].testOutput*(x[1]), self.inputs))
@@ -94,7 +97,7 @@ class NeuralNet():
             layers += [Layer(layer)]
         self.layers = layers
 
-    def startTraining(self):
+    def startTraining(self,K):
 
         x = self.attributesList
         y = []
@@ -106,19 +109,14 @@ class NeuralNet():
             y.append(expectedOutputsForLastLayer)
         #print y
 
-        for k in range(1000):
+        for k in range(K):
             for i in range(len(y)):
                 self.forwardProp(x[i])
                 self.backProp(x, y, i, self.learningRate)
-            print k, self.errorFunction(x, y)
-            self.performanceEvaluator.computeAccuracy()
-            self.performanceEvaluator.computePrecision()
-            self.performanceEvaluator.computeRecall()
-            self.performanceEvaluator.computeFMeasure()
-            self.performanceEvaluator.resetConfusionMatrix()
+            #print k, self.errorFunction(x, y)
 
-    def forwardProp(self, instance, outputType = 0):
-        for i in range(len(instance)):
+    def forwardProp(self, instance, outputType = 0, flag = 0):
+        for i in range(len(instance)-flag):
             self.layers[0].neurons[i].output = instance[i]
             self.layers[0].neurons[i].testOutput = instance[i]
         for n in range(1, len(self.layers)):
@@ -139,12 +137,6 @@ class NeuralNet():
             if n.output > highestOutputValue:
                 highestOutputValue = n.output
                 highestOutputValueClass= i + 1
-        for i in range(len(self.layers[-1].neurons)):
-             n = self.layers[-1].neurons[i]
-             iNeuronOutput = 0 if n.output < 0.5 else 1
-             self.performanceEvaluator.computeIteration(iNeuronOutput, y[instanceIndex][i], self.expectedClassList[instanceIndex])
-
-        #print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
 
         for l in reversed(range(1, len(self.layers) - 1)):
             for i in range(len(self.layers[l].neurons)):
@@ -273,8 +265,7 @@ if __name__ == '__main__':
     folds = cv.fold(trainingAndValidationSet, f.classProportion, f.classIndex)
 
     configs = [
-        [[10,15], 0.1, 0.05],
-        [[30,35,30], 0.2, 0.05]]
+        [[3], 0.1, 0]]
 
     n = []
 
@@ -284,9 +275,58 @@ if __name__ == '__main__':
         for k in range(len(configs[i][0])):
             neurons += [configs[i][0][k]]
         neurons += [len(f.classes)]
-        for j in range(5):
+        for j in range(1):
             trainingSet = folds[(j+1)%5] + folds[(j+2)%5] + folds[(j+3)%5] + folds[(j+4)%5]
             validationSet = folds[j]
             n += [NeuralNet(neurons, trainingSet, configs[i][1], configs[i][2])]
-            n[j].startTraining()
+            n[j].startTraining(60)
+
+
+            for k in range(len(validationSet)):
+                #print validationSet[k]
+                n[j].forwardProp(validationSet[k], 0, 1)
+                highestOutput = 0
+                predictedClass = 0
+                for index in range(len(n[j].layers[-1].neurons)):
+                    neuron = n[j].layers[-1].neurons[index]
+                    print index, neuron.output
+                    if(neuron.output > highestOutput):
+                        highestOutput = neuron.output
+                        predictedClass = index
+                print validationSet[k][-1], predictedClass
+                pe = n[j].performanceEvaluator
+                for index in range(int(pe.numberOfClasses)):
+                    predicted = 0
+                    expected = 0
+                    if index == predictedClass:
+                        predicted = 1
+                    if index == validationSet[k][-1] - 1:
+                        expected = 1
+                    pe.computeIteration(predicted, expected, index)
+            pe.computeAccuracy()
+            pe.computePrecision()
+            pe.computeRecall()
+            #pe.computeFMeasure()
+            pe.resetConfusionMatrix()
+                
+
+
+                #a = []
+        #for i in range(len(self.layers[-1].neurons)):
+        #    n = self.layers[-1].neurons[i]
+        #    a += [n.output]
+        #predictedClass = np.argmax(a)
+        #print predictedClass
+            #iNeuronOutput = 0 if n.output < 0.5 else 1
+        #for i in range(len(self.layers[-1].neurons)):
+        #    predicted = 0
+        #    if (i == predictedClass):
+        #        predicted = 1
+                #print i
+            #self.performanceEvaluator.computeIteration(predicted, y[instanceIndex][i], self.expectedClassList[instanceIndex])
+
+        #print "saída da rede:", highestOutputValueClass, "saída esperada:", self.expectedClassList[instanceIndex]
+        
+
+
 

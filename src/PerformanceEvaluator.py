@@ -14,7 +14,7 @@ class PerformanceEvaluator:
         self.fMeasure = np.zeros(self.numberOfClasses)
 
     def computeIteration(self, predicted, expected, expectedClass):
-        expectedClassIndex = expectedClass - 1
+        expectedClassIndex = expectedClass# - 1
         if predicted == 1 and expected == 1:
             self.truePositives[expectedClassIndex]+=1
         elif predicted == 1 and expected == 0:
@@ -58,6 +58,7 @@ class PerformanceEvaluator:
 
 
     def computeFMeasure(self, beta = 0.5):
+        num = 0
         for i in range(0, int(self.numberOfClasses)):
             if self.precision[0] > 0 and self.recall[i] > 0:
                 num = self.precision[i] * self.recall[i]
