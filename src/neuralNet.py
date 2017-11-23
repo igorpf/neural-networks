@@ -50,7 +50,7 @@ class Neuron():
 
 class NeuralNet():
     """docstring for neuralNet"""
-    def __init__(self, neurons=[1], trainingSetName = "haberman", numericalEvaluation=False):
+    def __init__(self, neurons, datasetMatrix, learningRate = 0.1, regularizationRate = 0.05, numericalEvaluation=False):
         """Constructor:
         args:
             neurons(list of ints):  list representing the size of each layer. The number
@@ -58,10 +58,12 @@ class NeuralNet():
         """
 
         self.numericalEvaluation = numericalEvaluation
-        self.trainingSetName = trainingSetName
-        self.regularizationRate = 0.05
+        #self.trainingSetName = trainingSetName
+        self.learningRate = learningRate
+        self.regularizationRate = regularizationRate
 
-        self.datasetMatrix = DataSet(files[trainingSetName]).dataMatrix
+        #self.datasetMatrix = DataSet(files[trainingSetName]).dataMatrix
+        self.datasetMatrix = datasetMatrix
 
         self.attributesList = [[self.datasetMatrix[i % len(self.datasetMatrix)][j] for j in range(len(self.datasetMatrix[0]) - 1)] for i in range(len(self.datasetMatrix))]
         if len(self.attributesList[0]) != neurons[0]: #-1 because there are the attributes AND the class
@@ -102,13 +104,13 @@ class NeuralNet():
             for possibleClass in range(1, int(self.possibleClasses) + 1):
                 expectedOutputsForLastLayer.append(1 if possibleClass == self.expectedClassList[i] else 0)
             y.append(expectedOutputsForLastLayer)
-        print y
+        #print y
 
         for k in range(1000):
             for i in range(len(y)):
-                n.forwardProp(x[i])
-                n.backProp(x, y, i, 0.1)
-            print k, n.errorFunction(x, y)
+                self.forwardProp(x[i])
+                self.backProp(x, y, i, self.learningRate)
+            print k, self.errorFunction(x, y)
             self.performanceEvaluator.computeAccuracy()
             self.performanceEvaluator.computePrecision()
             self.performanceEvaluator.computeRecall()
@@ -259,6 +261,32 @@ class DataSet():
             ranges += [[min(column),max(column)]]
         return ranges
 
+
 if __name__ == '__main__':
-    n = NeuralNet([3, 10, 10, 2], "haberman")
-    n.startTraining()
+    
+    f = files["haberman"]
+    ds = DataSet(f)
+    folds = cv.fold(ds.dataMatrix, f.classProportion, f.classIndex)
+    testingSet = folds[4]
+
+    trainingAndValidationSet = folds[0] + folds[1] + folds[2] + folds[3]
+    folds = cv.fold(trainingAndValidationSet, f.classProportion, f.classIndex)
+
+    configs = [
+        [[10,15], 0.1, 0.05],
+        [[30,35,30], 0.2, 0.05]]
+
+    n = []
+
+    for i in range(len(configs)):
+        neurons = []
+        neurons += [len(folds[0][0]) - 1]
+        for k in range(len(configs[i][0])):
+            neurons += [configs[i][0][k]]
+        neurons += [len(f.classes)]
+        for j in range(5):
+            trainingSet = folds[(j+1)%5] + folds[(j+2)%5] + folds[(j+3)%5] + folds[(j+4)%5]
+            validationSet = folds[j]
+            n += [NeuralNet(neurons, trainingSet, configs[i][1], configs[i][2])]
+            n[j].startTraining()
+
